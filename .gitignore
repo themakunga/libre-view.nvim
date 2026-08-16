@@ -1,0 +1,23 @@
+# Neovim & Lua
+.stylua/
+lua/.luarc.json
+*.so
+*.dylib
+*.dll
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Lazy / Package manager local dirs
+.lazy/
+doc/tags
+
+# CI & Release artifacts
+node_modules/
+package-lock.json
