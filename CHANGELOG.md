@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/themakunga/libre-view.nvim/compare/v1.0.0...v1.1.0) (2026-08-16)
+
+
+### Features
+
+* add healthcheck ([7e2976d](https://github.com/themakunga/libre-view.nvim/commit/7e2976df5e9f7a2506ba618137b16a6eb64a1741))
+
 # 1.0.0 (2026-08-16)
 
 
