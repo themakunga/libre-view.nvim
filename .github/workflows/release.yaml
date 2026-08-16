@@ -18,16 +18,15 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Se necesita Node.js SÓLO para ejecutar el binario de semantic-release
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install Semantic Release & Plugins
         run: |
@@ -39,14 +38,7 @@ jobs:
             @semantic-release/git \
             @semantic-release/github
 
-      - name: Execute Semantic Release (No NPM)
+      - name: Execute Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Al definir --plugins de esta forma, ignoramos npm y el error ENOPKG desaparece
-        run: |
-          npx semantic-release \
-            --plugins "@semantic-release/commit-analyzer" \
-            --plugins "@semantic-release/release-notes-generator" \
-            --plugins "@semantic-release/changelog" \
-            --plugins ["@semantic-release/git",{"assets":["CHANGELOG.md"],"message":"chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"}] \
-            --plugins "@semantic-release/github"
+        run: npx semantic-release
