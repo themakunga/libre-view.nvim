@@ -1,0 +1,140 @@
+*libre-view.txt*    A FreeStyle Libre monitor widget for Neovim
+
+Author:  Nicolas (@themakunga)
+License: MIT
+
+==============================================================================
+CONTENTS                                               *libre-view-contents*
+
+    1. Introduction ............................. |libre-view-introduction|
+    2. Installation ............................. |libre-view-installation|
+    3. Configuration ............................ |libre-view-configuration|
+    4. Integration .............................. |libre-view-integration|
+    5. Commands ................................. |libre-view-commands|
+    6. Disclaimer ............................... |libre-view-disclaimer|
+
+==============================================================================
+1. INTRODUCTION                                      *libre-view-introduction*
+
+libre-view.nvim is an asynchronous Lua plugin for Neovim 0.12+ that fetches
+real-time glucose data from FreeStyle Libre sensors using the non-official
+LibreLinkUp API.
+
+It is designed to be completely non-blocking by using Neovim's native
+`vim.system()` and `vim.uv` APIs, and it integrates seamlessly into plugin
+bars like `bufferline.nvim` or standard status lines (like `lualine.nvim`).
+
+Features:
+  • Real-time updates without UI freezing.
+  • Secure Abbott SHA-256 header hashing.
+  • Customizable regions (US, EU, LatAm, etc).
+
+==============================================================================
+2. INSTALLATION                                      *libre-view-installation*
+
+Requires:
+  • Neovim >= 0.12
+  • `curl` installed in your OS environment.
+
+Using lazy.nvim: >lua
+
+    {
+      "themakunga/libre-view.nvim",
+      opts = {
+        email = "follower@email.com",
+        password = "your_password",
+        region = "cl",
+      }
+    }
+
+<
+You can verify if your system meets the requirements by running: >vim
+    :checkhealth libre-view
+<
+
+==============================================================================
+3. CONFIGURATION                                    *libre-view-configuration*
+
+You can configure the plugin using the `setup` function or the `opts` table in
+your package manager.
+
+Default options: >lua
+    require("libre-view").setup({
+      email = "",                  -- Your LibreLinkUp follower email
+      password = "",               -- Your LibreLinkUp password
+      region = "cl",               -- API Endpoint region
+      update_interval = 300,       -- Refresh rate in seconds (default 5m)
+    })
+<
+
+Available Regions:
+  • `cl` or `latam` : Latin America
+  • `eu`            : Europe
+  • `us`            : United States
+  • `ae`            : Middle East / Asia
+
+==============================================================================
+4. INTEGRATION                                        *libre-view-integration*
+
+*libre-view-bufferline*
+You can integrate the widget in `bufferline.nvim` by calling the exposed
+`widget()` function inside the `custom_areas` block.
+
+Example: >lua
+    require("bufferline").setup({
+      options = {
+        custom_areas = {
+          right = function()
+            local ok, libre = pcall(require, "libre-view")
+            if not ok or not libre.widget then return {} end
+
+            return {
+              {
+                text = libre.widget(),
+                fg = "#7dcfff",
+                bg = "NONE",
+                bold = true,
+              }
+            }
+          end,
+        }
+      }
+    })
+<
+
+*libre-view-lualine*
+If you prefer standard status lines like `lualine.nvim`: >lua
+    require("lualine").setup({
+      sections = {
+        lualine_x = {
+          function() return require("libre-view").widget() end,
+        }
+      }
+    })
+<
+
+==============================================================================
+5. COMMANDS                                              *libre-view-commands*
+
+The plugin exposes the following user commands:
+
+*:LibreUpdate*
+    Forces an immediate fetch of the latest glucose data from the API
+    and redraws the screen.
+
+*:LibreStatus*
+    Prints the current glucose value and trend arrow in a standard Neovim
+    notification popup.
+
+==============================================================================
+6. DISCLAIMER                                          *libre-view-disclaimer*
+
+This project is NOT affiliated, associated, authorized, endorsed by, or in
+any way officially connected with Abbott Laboratories, FreeStyle Libre,
+LibreLinkUp, or any of its subsidiaries or affiliates.
+
+This is NOT a medical device. Do not make medical or dosing decisions based
+on values displayed by this plugin.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
