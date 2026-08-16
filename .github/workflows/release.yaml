@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 jobs:
@@ -37,7 +38,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Semantic Release
+      - name: Install Dependencies
         run: |
           npm install -g \
             semantic-release \
@@ -45,17 +46,7 @@ jobs:
             @semantic-release/git \
             @semantic-release/github
 
-      - name: Execute Semantic Release (Manual Trigger)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Execute Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Running manual release type: ${{ inputs.release_type }}"
-          npx semantic-release --no-ci
-
-      - name: Execute Semantic Release (Automatic Commit Push)
-        if: ${{ github.event_name == 'push' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx semantic-release
+        run: npx semantic-release
