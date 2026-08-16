@@ -2,16 +2,6 @@ name: Release Pipeline
 
 on:
   workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Release Increment Type"
-        required: true
-        default: "patch"
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
   push:
     branches:
       - main
@@ -23,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    name: Create GitHub Release
+    name: Create GitHub Release and Tags
     runs-on: ubuntu-latest
 
     steps:
@@ -33,20 +23,30 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Se necesita Node.js SÓLO para ejecutar el binario de semantic-release
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Dependencies
+      - name: Install Semantic Release & Plugins
         run: |
           npm install -g \
             semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
             @semantic-release/changelog \
             @semantic-release/git \
             @semantic-release/github
 
-      - name: Execute Semantic Release
+      - name: Execute Semantic Release (No NPM)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        # Al definir --plugins de esta forma, ignoramos npm y el error ENOPKG desaparece
+        run: |
+          npx semantic-release \
+            --plugins "@semantic-release/commit-analyzer" \
+            --plugins "@semantic-release/release-notes-generator" \
+            --plugins "@semantic-release/changelog" \
+            --plugins ["@semantic-release/git",{"assets":["CHANGELOG.md"],"message":"chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"}] \
+            --plugins "@semantic-release/github"
